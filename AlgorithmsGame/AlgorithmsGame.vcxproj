@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameBase\GamesEngineeringBase.h" />
+    <ClInclude Include="GameParameters.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainLoop.cpp" />
