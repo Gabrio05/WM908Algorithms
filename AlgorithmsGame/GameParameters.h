@@ -7,9 +7,8 @@ namespace GameParameters {
 	int window_height = 768;
 
 	namespace Camera {
-		float acceleration = 2.0f;
+		float time_to_destination = 0.2f;  // secs
 	}
-
 }
 
 #endif
