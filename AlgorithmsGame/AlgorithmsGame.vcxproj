@@ -18,11 +18,17 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameBase\GamesEngineeringBase.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainLoop.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{48b736e2-3ee1-4d8c-93d6-8dfa2f6256e7}</ProjectGuid>
-    <RootNamespace>Worksheet1</RootNamespace>
+    <ProjectGuid>{40ab3da6-d080-4fbc-92ca-30e749945380}</ProjectGuid>
+    <RootNamespace>AlgorithmsGame</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -122,9 +128,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="worksheet.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
