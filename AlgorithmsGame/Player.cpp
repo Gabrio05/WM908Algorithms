@@ -6,7 +6,13 @@ Player::Player() {
 	coordinates[1] = 0.0f;
 }
 
-void Player::movePlayer(UpdateData update_data) {
+Player::Player(int set[2]) {
+	image = Sprite();
+	coordinates[0] = (float)set[0];
+	coordinates[1] = (float)set[1];
+}
+
+void Player::movePlayer(updateData update_data) {
 	float delta = update_data.delta;
 	if (update_data.is_key_pressed[0x25]) {
 		coordinates[0] -= speed * delta;
@@ -28,7 +34,7 @@ void Player::getCoordinates(int destination[2]) {
 	}
 }
 
-void Player::update(UpdateData update_data) {
+void Player::update(updateData update_data) {
 	movePlayer(update_data);
 	image.setPosition(coordinates[0], coordinates[1]);
 }

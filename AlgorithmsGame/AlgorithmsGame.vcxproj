@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Background.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="GameBase\GamesEngineeringBase.h" />
     <ClInclude Include="GameManagement.h" />
     <ClInclude Include="GameParameters.h" />
@@ -28,6 +30,8 @@
     <ClInclude Include="UpdateData.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Background.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GameManagement.cpp" />
     <ClCompile Include="MainLoop.cpp" />
     <ClCompile Include="Player.cpp" />

@@ -3,11 +3,11 @@
 #include "GameBase/GamesEngineeringBase.h"
 #include "GameParameters.h"
 
-class UpdateData {
-public:
-	bool is_key_pressed[256];
+/* Any relevant information needed by an object for frame update. */
+struct updateData {
+	bool is_key_pressed[256];  // Follows virtual keys, only checks relevant keys
 	float delta;
-	UpdateData(float dt, GamesEngineeringBase::Window* canvas);
+	updateData(float dt, GamesEngineeringBase::Window* canvas);
 };
 
 #endif
