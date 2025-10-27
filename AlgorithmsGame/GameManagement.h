@@ -4,11 +4,13 @@
 #include "GameBase/GamesEngineeringBase.h"
 #include "SceneManagement.h"
 #include "UpdateData.h"
+#ifdef DEBUG
 #include <iostream>
+#endif
 
 /* Manages entire game including scene loading and basic update loop. */
 class GameManager {
-	GamesEngineeringBase::Window* canvas;
+	GamesEngineeringBase::Window& canvas;
 	int width = GameParameters::window_width;
 	int height = GameParameters::window_height;
 	Scene scene;
@@ -19,8 +21,9 @@ class GameManager {
 #endif
 	void drawImage();
 public:
-	GameManager(GamesEngineeringBase::Window* c);
+	GameManager(GamesEngineeringBase::Window& c);
 	void runUpdateLoop();  // Run update in (appropriate) scene
+	void loadAll();
 };
 
 #endif

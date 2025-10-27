@@ -1,11 +1,7 @@
 #include "GameManagement.h"
 
-GameManager::GameManager(GamesEngineeringBase::Window* c) {
-	canvas = c;
-	scene = Scene();
-	scene.loadSprite(0, GameParameters::Player::filename);
-	scene.loadSprite(1, "");
-	timer = GamesEngineeringBase::Timer();
+GameManager::GameManager(GamesEngineeringBase::Window& c) : scene{}, timer{}, canvas{ c } {
+
 }
 
 void GameManager::runUpdateLoop() {
@@ -19,11 +15,17 @@ void GameManager::runUpdateLoop() {
 	frame_time -= delta;
 	frames_per_second++;
 #endif
-	updateData update_data = updateData(delta, canvas);
+	updateData update_data = updateData(delta, &canvas);
 	scene.update(update_data);
-	canvas->clear();
+	canvas.clear();
 	drawImage();
-	canvas->present();
+	canvas.present();
+}
+
+void GameManager::loadAll() {
+	scene.loadSprite(0, GameParameters::Player::filename);
+	scene.loadSprite(1, "");
+	scene.loadSprite(2, "");
 }
 
 void GameManager::drawImage() {
@@ -34,7 +36,7 @@ void GameManager::drawImage() {
 			pixel[0] = j;
 			pixel[1] = i;
 			scene.getPixelColour(pixel, colour);
-			canvas->draw(j, i, colour[0], colour[1], colour[2]);
+			canvas.draw(j, i, colour[0], colour[1], colour[2]);
 		}
 	}
 }

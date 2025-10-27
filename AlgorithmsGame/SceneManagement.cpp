@@ -1,10 +1,15 @@
 #include "SceneManagement.h"
 
 Scene::Scene() {
-	camera = Camera();
-	player = Player();
-	background = Background();
+	enemy_sprites = new Sprite[GameParameters::Enemies::unique_enemies]{};
+	enemies[0] = Enemy(&(enemy_sprites[0]));
+	enemy_count++;
 }
+
+Scene::~Scene() {
+	delete[] enemy_sprites;
+}
+
 void Scene::getPixelColour(int pixel[2], unsigned char colour[3]) {
 	// Background -> Player -> Enemies -> Player Projectiles -> Enemy Projectiles -> Effects (if any)
 	// Fake Background
@@ -36,19 +41,39 @@ void Scene::getPixelColour(int pixel[2], unsigned char colour[3]) {
 			colour[2] = temp_colour[2] * temp_colour[3] / 256;
 		}
 	}
+	// Enemies
+	for (int i = 0; i < enemy_count; i++) {
+		if (enemies[i].isInside(actual_pixel)) {
+			unsigned char temp_colour[4];
+			enemies[i].getPixelColour(actual_pixel, temp_colour);
+			if (temp_colour[3] > 0) {
+				colour[0] = temp_colour[0] * temp_colour[3] / 256;
+				colour[1] = temp_colour[1] * temp_colour[3] / 256;
+				colour[2] = temp_colour[2] * temp_colour[3] / 256;
+			}
+		}
+	}
 }
+
 void Scene::update(updateData update_data) {
 	player.update(update_data);
 	int destination[2];
 	player.getCoordinates(destination);
 	camera.updatePosition(destination, update_data.delta);
+	player.getCoordinates(destination);
+	for (int i = 0; i < enemy_count; i++) {
+		enemies[i].update(update_data, destination);
+	}
 }
 
 void Scene::loadSprite(int i, std::string filename) {
-	if (i == 0) {  // Player Sprite
-		player.image.load(filename);
+	if (i == 0) {
+		player.image.image.load(filename);
 	}
 	if (i == 1) {
 		background.loadAllTiles();
+	}
+	if (i == 2) {
+		enemies[0].loadSprite();
 	}
 }

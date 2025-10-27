@@ -1,16 +1,26 @@
 #include "Player.h"
 
-Player::Player() {
-	image = Sprite();
+Player::Player() : image{}, collision{ GameParameters::Player::environment_collision } {
 	coordinates[0] = 0.0f;
 	coordinates[1] = 0.0f;
+	//scene = nullptr;
 }
 
-Player::Player(int set[2]) {
-	image = Sprite();
-	coordinates[0] = (float)set[0];
-	coordinates[1] = (float)set[1];
-}
+//Player::Player(Scene* sc) {
+//	image = Sprite();
+//	coordinates[0] = 0.0f;
+//	coordinates[1] = 0.0f;
+//	scene = sc;
+//	//collision = Collision(GameParameters::Player::environment_collision);
+//}
+//
+//Player::Player(Scene* sc, int set[2]) {
+//	image = Sprite();
+//	coordinates[0] = (float)set[0];
+//	coordinates[1] = (float)set[1];
+//	scene = sc;
+//	//collision = Collision(GameParameters::Player::environment_collision);
+//}
 
 void Player::movePlayer(updateData update_data) {
 	float delta = update_data.delta;

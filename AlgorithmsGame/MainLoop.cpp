@@ -7,7 +7,8 @@ int main() {
 	canvas.create(GameParameters::window_width, GameParameters::window_height, "place");
 	bool isRunning = true;
 
-	GameManager game_manager = GameManager(&canvas);
+	GameManager game_manager{ canvas };
+	game_manager.loadAll();
 
 	while (isRunning) {
 		game_manager.runUpdateLoop();
