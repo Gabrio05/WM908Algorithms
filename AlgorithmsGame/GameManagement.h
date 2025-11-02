@@ -19,7 +19,6 @@ class GameManager {
 	float frame_time = 0.0f;
 	int frames_per_second = 0;
 #endif
-	void drawImage();
 public:
 	GameManager(GamesEngineeringBase::Window& c);
 	void runUpdateLoop();  // Run update in (appropriate) scene

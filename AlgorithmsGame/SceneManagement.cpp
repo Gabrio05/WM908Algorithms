@@ -1,69 +1,100 @@
 #include "SceneManagement.h"
 
-Scene::Scene() {
+Scene::Scene() : player{this} {
 	enemy_sprites = new Sprite[GameParameters::Enemies::unique_enemies]{};
-	enemies[0] = Enemy(&(enemy_sprites[0]));
-	enemy_count++;
+	enemies = new Enemy[GameParameters::Enemies::max_enemy_count]{};
+	spawnEnemy();
 }
 
 Scene::~Scene() {
 	delete[] enemy_sprites;
+	delete[] enemies;
 }
 
-void Scene::getPixelColour(int pixel[2], unsigned char colour[3]) {
-	// Background -> Player -> Enemies -> Player Projectiles -> Enemy Projectiles -> Effects (if any)
-	// Fake Background
-	// For now, just a dot every 32 pixels
-	int actual_pixel[2];
-	actual_pixel[0] = camera.getPosition(0) - width / 2 + pixel[0];
-	actual_pixel[1] = camera.getPosition(1) - height / 2 + pixel[1];
-	if (actual_pixel[0] % 32 == 0 && actual_pixel[1] % 32 == 0) {
-		colour[0] = colour[1] = colour[2] = 255;
-	}
-	else {
-		colour[0] = colour[1] = colour[2] = 0;
-	}
-	// Background
-	unsigned char temp_colour[4];
-	background.getPixelColour(actual_pixel, temp_colour);
-	if (temp_colour[3] > 0) {
-		colour[0] = temp_colour[0] * temp_colour[3] / 256;
-		colour[1] = temp_colour[1] * temp_colour[3] / 256;
-		colour[2] = temp_colour[2] * temp_colour[3] / 256;
-	}
-	// Player
-	if (player.image.isInside(actual_pixel[0], actual_pixel[1])) {
-		unsigned char temp_colour[4];
-		player.image.getPixelColour(actual_pixel, temp_colour);
-		if (temp_colour[3] > 0) {
-			colour[0] = temp_colour[0] * temp_colour[3] / 256;
-			colour[1] = temp_colour[1] * temp_colour[3] / 256;
-			colour[2] = temp_colour[2] * temp_colour[3] / 256;
-		}
-	}
-	// Enemies
-	for (int i = 0; i < enemy_count; i++) {
-		if (enemies[i].isInside(actual_pixel)) {
-			unsigned char temp_colour[4];
-			enemies[i].getPixelColour(actual_pixel, temp_colour);
-			if (temp_colour[3] > 0) {
-				colour[0] = temp_colour[0] * temp_colour[3] / 256;
-				colour[1] = temp_colour[1] * temp_colour[3] / 256;
-				colour[2] = temp_colour[2] * temp_colour[3] / 256;
+int Scene::getEnemyNumber() { return enemy_count; }
+
+void Scene::checkCollision(Collision* collision, int enemy_number, float delta) {
+	return enemies[enemy_number].checkCollision(collision, delta);
+}
+
+void Scene::drawImage_PerPixel(GamesEngineeringBase::Window* canvas, int index_function, int world_pixel[2]) {
+	for (int y = 0; y < (int)canvas->getHeight(); y++) {
+		for (int x = 0; x < (int)canvas->getWidth(); x++) {
+			int actual_pixel[2];
+			actual_pixel[0] = world_pixel[0] + x;
+			actual_pixel[1] = world_pixel[1] + y;
+			switch (index_function) {
+			case 0:
+				drawImage_Background(canvas, actual_pixel, x, y);
+				break;
+			case 1:
+				drawImage_Player(canvas, actual_pixel, x, y);
+				break;
 			}
 		}
 	}
 }
 
+void drawToCanvas(GamesEngineeringBase::Window* canvas, int x, int y, unsigned char colour[4]) {
+	if (colour[3] > 0) {
+		for (int i = 0; i < 3; i++) {
+			colour[i] = colour[i] * colour[3] / 255;
+		}
+		canvas->draw(x, y, colour);
+	}
+}
+
+void Scene::drawImage_Background(GamesEngineeringBase::Window* canvas, int actual_pixel[2], int x, int y) {
+	// Fake Background: dot every 50 pixels
+	if (actual_pixel[0] % 50 == 0 && actual_pixel[1] % 50 == 0) {
+		canvas->draw(x, y, 0, 255, 0);
+	}
+	// Background: Tiles
+	unsigned char temp_colour[4]{};
+	background.getPixelColour(actual_pixel, temp_colour);
+	drawToCanvas(canvas, x, y, temp_colour);
+}
+
+void Scene::drawImage_Player(GamesEngineeringBase::Window* canvas, int actual_pixel[2], int x, int y) {
+	if (player.image.isInside(actual_pixel[0], actual_pixel[1])) {
+		unsigned char temp_colour[4]{};
+		player.image.getPixelColour(actual_pixel, temp_colour);
+		drawToCanvas(canvas, x, y, temp_colour);
+	}
+}
+
+void Scene::drawImage_Enemies(GamesEngineeringBase::Window* canvas, int world_pixel[2]) {
+	for (int i = 0; i < enemy_count; i++) {
+		enemies[i].drawImage(canvas, world_pixel, height, width);
+	}
+}
+
+void Scene::drawImage(GamesEngineeringBase::Window* canvas) {
+	// Background -> Player -> Enemies -> Player Projectiles -> Enemy Projectiles -> Effects (if any)
+	int world_pixel[2];
+	world_pixel[0] = camera.getPosition(0) - width / 2;
+	world_pixel[1] = camera.getPosition(1) - height / 2;
+	drawImage_PerPixel(canvas, 0, world_pixel);  // Background
+	drawImage_PerPixel(canvas, 1, world_pixel);  // Player
+	drawImage_Enemies(canvas, world_pixel);  // Enemies
+}
+
 void Scene::update(updateData update_data) {
-	player.update(update_data);
+	// Player & Camera routine
+	player.update(update_data);  // Handles enemy collisions and attacks
 	int destination[2];
 	player.getCoordinates(destination);
 	camera.updatePosition(destination, update_data.delta);
-	player.getCoordinates(destination);
+	// Enemy routine
+	enemy_spawn_timer -= update_data.delta;
+	if (enemy_spawn_timer <= 0.0f) {
+		spawnEnemy();
+		enemy_spawn_timer += GameParameters::Enemies::initial_spawn_time;
+	}
 	for (int i = 0; i < enemy_count; i++) {
 		enemies[i].update(update_data, destination);
 	}
+	cleanUpEnemies();
 }
 
 void Scene::loadSprite(int i, std::string filename) {
@@ -75,5 +106,25 @@ void Scene::loadSprite(int i, std::string filename) {
 	}
 	if (i == 2) {
 		enemies[0].loadSprite();
+	}
+}
+
+void Scene::spawnEnemy() {
+	if (enemy_count >= GameParameters::Enemies::max_enemy_count) {
+		return;
+	}
+	int spawn_position[2] {camera.getPosition(0) + width, camera.getPosition(1) + height};  // TODO
+	enemies[enemy_count] = Enemy(&(enemy_sprites[0]), spawn_position);
+	enemy_count++;
+}
+
+void Scene::cleanUpEnemies() {
+	int killed = 0;
+	for (int i = 0; i < enemy_count; i++) {
+		while (enemies[i].getHealth() <= 0 && i < enemy_count) {
+			killed++;
+			enemies[i] = enemies[enemy_count - killed];
+			enemy_count--;
+		}
 	}
 }

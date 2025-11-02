@@ -30,7 +30,7 @@ void Background::getPixelColour(int pixel[2], unsigned char colour[4]) {
 	actual_pixel[1] = pixel[1] - coordinates[1];
 	if (isInside(actual_pixel[0], actual_pixel[1])) {
 		//int sprite_index = tile_index[(int)(x / tile_size[0])][(int)(y / tile_size[1])];  // TODO
-		int sprite_index = 18;
+		int sprite_index = 0;
 		actual_pixel[0] = actual_pixel[0] % tile_size[0];
 		actual_pixel[1] = actual_pixel[1] % tile_size[1];
 		tiles[sprite_index].getPixelColour(actual_pixel, colour);

@@ -18,6 +18,8 @@ namespace GameParameters {
 		constexpr float speed = 100.0f;  // pixels per second
 		constexpr char filename[] = "PlaneResources/L.png";
 		constexpr float environment_collision[2][2] { {-5.0f, -10.0f}, {5.0f, 10.0f} };  // Should be smaller than sprite and feel fair
+		constexpr int attack1_strength = 20;
+		constexpr float attack1_cooldown = 0.5f;
 	}
 
 	namespace updateData {
@@ -37,18 +39,19 @@ namespace GameParameters {
 													"Resources/20.png", "Resources/21.png", "Resources/22.png", "Resources/23.png" };
 		constexpr int map_size[2] { 42, 42 };
 		constexpr char map_filename[] = "Resources/tiles.txt";
-		constexpr float environment_collision[2][2] { {-15.0f, -15.0f}, {15.0f, 15.0f} };
+		constexpr float environment_collision[2][2] { {-15.0f, -15.0f}, {15.0f, 15.0f} };  // HACK
 	}
 
 	namespace Enemies {
 		constexpr int unique_enemies = 1;
+		constexpr int max_enemy_count = 256;
+		constexpr float initial_spawn_time = 2.0f;
 	}
 
 	namespace EnemyPlane {
 		constexpr float environment_collision[2][2] { {-5.0f, -10.0f}, {5.0f, 10.0f} };
 		constexpr float speed = 75.0f;  // Pixels per second
 		constexpr char filename[] = "PlaneResources/L2.png";
-		constexpr int max_enemy_count = 4;
 	}
 
 }

@@ -18,7 +18,7 @@ void GameManager::runUpdateLoop() {
 	updateData update_data = updateData(delta, &canvas);
 	scene.update(update_data);
 	canvas.clear();
-	drawImage();
+	scene.drawImage(&canvas);
 	canvas.present();
 }
 
@@ -26,17 +26,4 @@ void GameManager::loadAll() {
 	scene.loadSprite(0, GameParameters::Player::filename);
 	scene.loadSprite(1, "");
 	scene.loadSprite(2, "");
-}
-
-void GameManager::drawImage() {
-	for (int i = 0; i < GameParameters::window_height; i++) {
-		for (int j = 0; j < GameParameters::window_width; j++) {
-			unsigned char colour[3];
-			int pixel[2];
-			pixel[0] = j;
-			pixel[1] = i;
-			scene.getPixelColour(pixel, colour);
-			canvas.draw(j, i, colour[0], colour[1], colour[2]);
-		}
-	}
 }

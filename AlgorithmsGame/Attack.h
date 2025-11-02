@@ -4,6 +4,8 @@
 class Attack {
 public:
 	int damage = 1;
+	Attack();
+	Attack(int power);
 };
 
 #endif
