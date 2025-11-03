@@ -1,8 +1,6 @@
 #ifndef SCENEMANAGE
 #define SCENEMANAGE
-
-#include <functional>
-
+#include <random>
 #include "Player.h"
 #include "GameParameters.h"
 #include "GameBase/GamesEngineeringBase.h"
@@ -21,6 +19,10 @@ class Scene {
 	float enemy_spawn_timer = GameParameters::Enemies::initial_spawn_time;
 	Background background{};
 	Sprite* enemy_sprites;
+	std::mt19937* random_engine;
+	std::uniform_int_distribution<> distribution_width_enemy{ -width * 2, width * 2 };
+	std::uniform_int_distribution<> distribution_height_enemy{ -height * 2, height * 2 };
+	std::uniform_int_distribution<> coinflip{ 0, 1 };
 
 	// Drawing Functions
 	// Background -> Player -> Enemies -> Player Projectiles -> Enemy Projectiles -> Effects (if any)
@@ -31,6 +33,7 @@ class Scene {
 public:
 	Enemy* enemies;  // Enemy order is not guarranteed
 	Scene();
+	Scene(std::mt19937* engine);
 	~Scene();
 	Scene& operator=(const Scene&) = delete;
 	Scene(const Scene&) = delete;

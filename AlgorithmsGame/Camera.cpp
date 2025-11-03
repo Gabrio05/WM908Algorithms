@@ -19,7 +19,7 @@ void Camera::updatePosition(int destination[2], float delta) {
 	if (t > 1.0f) { t = 1.0f; }
 
 	for (int i = 0; i < 2; i++) {
-		position[i] = smoothInterpolation(position[i], destination[i], t);
+		position[i] = smoothInterpolation(position[i], (float)destination[i], t);
 		if ((int)(position[i] + 0.5f) == destination[i]) { position[i] = (float)destination[i]; }
 	}
 }

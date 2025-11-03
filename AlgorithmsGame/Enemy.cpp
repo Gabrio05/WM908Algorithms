@@ -1,20 +1,25 @@
 #include "Enemy.h"
 
-Enemy::Enemy() : attack{}, collision{ GameParameters::EnemyPlane::environment_collision } {
+Enemy::Enemy() : collision{ GameParameters::EnemyPlane::environment_collision } {
 	position[0] = position[1] = 0.0f;
 	image = nullptr;
 }
 
-Enemy::Enemy(Sprite* spr) : attack{}, collision{ GameParameters::EnemyPlane::environment_collision } {
+Enemy::Enemy(Sprite* spr) : collision{ GameParameters::EnemyPlane::environment_collision } {
 	position[0] = 0.0f;
 	position[1] = 0.0f;
 	image = spr;
 }
 
-Enemy::Enemy(Sprite* spr, int pos[2]) : attack{}, collision{ GameParameters::EnemyPlane::environment_collision } {
+Enemy::Enemy(Sprite* spr, int pos[2]) : collision{ GameParameters::EnemyPlane::environment_collision } {
 	position[0] = (float)pos[0];
 	position[1] = (float)pos[1];
 	image = spr;
+}
+
+void Enemy::setStats(int h, int damage) {
+	health = h;
+	attack = Attack{ damage };
 }
 
 void Enemy::setImagePositionAuto() {
@@ -59,10 +64,13 @@ void Enemy::update(updateData update_data, int player_pos[2]) {
 		} 
 		else if (difference[i] < 0) {
 			position[i] -= change;
+			collision.current_velocity[i] = -change / delta;
 		}
 		else {
 			position[i] += change;
+			collision.current_velocity[i] = change / delta;
 		}
+		collision.current_position[i] = position[i];
 	}
 }
 

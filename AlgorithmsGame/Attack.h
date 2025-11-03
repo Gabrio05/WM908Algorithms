@@ -3,7 +3,7 @@
 
 class Attack {
 public:
-	int damage = 1;
+	int damage = 5;
 	Attack();
 	Attack(int power);
 };

@@ -1,7 +1,7 @@
 #include "Collision.h"
 
 float pythagoras(float x, float y) {
-	return sqrt(x * x + y * y);
+	return (float)sqrt(x * x + y * y);
 }
 
 Collision::Collision() {}
@@ -52,7 +52,11 @@ void Collision::checkCollision(Collision* other, float delta) {
 	float new_distance = pythagoras(new_position[0] - other_new_position[0], new_position[1] - other_new_position[1]);
 	if (distance <= radii) {
 		has_collision_occured = true;
-		if (is_solid || other->is_solid) { has_solid_collision_occured = true; }
+		other->has_collision_occured = true;
+		if (is_solid || other->is_solid) { 
+			has_solid_collision_occured = true;
+			other->has_solid_collision_occured = true;
+		}
 	}
 }
 

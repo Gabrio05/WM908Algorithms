@@ -1,6 +1,6 @@
 #include "GameManagement.h"
 
-GameManager::GameManager(GamesEngineeringBase::Window& c) : scene{}, timer{}, canvas{ c } {
+GameManager::GameManager(GamesEngineeringBase::Window& c, std::mt19937* engine) : scene{ engine }, timer{}, canvas{ c }, random_engine{ engine } {
 
 }
 

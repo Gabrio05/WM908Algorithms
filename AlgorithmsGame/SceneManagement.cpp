@@ -4,6 +4,13 @@ Scene::Scene() : player{this} {
 	enemy_sprites = new Sprite[GameParameters::Enemies::unique_enemies]{};
 	enemies = new Enemy[GameParameters::Enemies::max_enemy_count]{};
 	spawnEnemy();
+	random_engine = nullptr;
+}
+
+Scene::Scene(std::mt19937* engine) : player{ this }, random_engine{ engine } {
+	enemy_sprites = new Sprite[GameParameters::Enemies::unique_enemies]{};
+	enemies = new Enemy[GameParameters::Enemies::max_enemy_count]{};
+	spawnEnemy();
 }
 
 Scene::~Scene() {
@@ -113,7 +120,20 @@ void Scene::spawnEnemy() {
 	if (enemy_count >= GameParameters::Enemies::max_enemy_count) {
 		return;
 	}
-	int spawn_position[2] {camera.getPosition(0) + width, camera.getPosition(1) + height};  // TODO
+	// Spawn in 2x2 window size, then coinflip determines either corners or sides.
+	// Corners simply add or subtract width or height divided by 2.
+	// Sides "rotate" clockwise to their corresponding side.
+	int spawn_position[2] { distribution_width_enemy(*random_engine) + camera.getPosition(0), 
+							distribution_height_enemy(*random_engine) + camera.getPosition(1) };
+	while (spawn_position[0] > camera.getPosition(0) - width / 2 - enemy_sprites[0].image.width
+		   && spawn_position[0] < camera.getPosition(0) + width / 2 + enemy_sprites[0].image.width
+		   && spawn_position[1] > camera.getPosition(1) - height / 2 - enemy_sprites[1].image.height
+		   && spawn_position[1] < camera.getPosition(1) + height / 2 + enemy_sprites[1].image.height) {
+		spawn_position[0] = distribution_width_enemy(*random_engine) + camera.getPosition(0);
+		spawn_position[1] = distribution_height_enemy(*random_engine) + camera.getPosition(1);
+	}
+	//spawn_position[0] = distribution_width_enemy(*random_engine) + camera.getPosition(0);
+	//spawn_position[1] = distribution_height_enemy(*random_engine) + camera.getPosition(1);
 	enemies[enemy_count] = Enemy(&(enemy_sprites[0]), spawn_position);
 	enemy_count++;
 }

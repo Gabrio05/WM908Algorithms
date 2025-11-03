@@ -15,12 +15,13 @@ class GameManager {
 	int height = GameParameters::window_height;
 	Scene scene;
 	GamesEngineeringBase::Timer timer;
+	std::mt19937* random_engine;
 #ifdef DEBUG
 	float frame_time = 0.0f;
 	int frames_per_second = 0;
 #endif
 public:
-	GameManager(GamesEngineeringBase::Window& c);
+	GameManager(GamesEngineeringBase::Window& c, std::mt19937* engine);
 	void runUpdateLoop();  // Run update in (appropriate) scene
 	void loadAll();
 };

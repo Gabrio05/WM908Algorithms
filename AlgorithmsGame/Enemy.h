@@ -8,17 +8,18 @@
 
 class Enemy {
 	float position[2];
-	int health = 100;
+	int health = GameParameters::EnemyPlane::health;
 	float speed = GameParameters::EnemyPlane::speed;
-	Attack attack;
 	Collision collision;
 	void setImagePositionAuto();
 public:
+	Attack attack{ GameParameters::EnemyPlane::attack_damage };
 	Sprite* image;
 	int image_effect = 0;  // 0 for standard, 1 for damaged, 2 for dead
 	Enemy();
 	Enemy(Sprite*);
 	Enemy(Sprite* spr, int pos[2]);
+	void setStats(int health, int damage);
 	void update(updateData update_data, int player_position[2]);
 	void checkCollision(Collision*, float delta);
 	void takeDamage(Attack*);

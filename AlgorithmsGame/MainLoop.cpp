@@ -13,11 +13,15 @@ int main() {
 	canvas.create(GameParameters::window_width, GameParameters::window_height, "place");
 	bool isRunning = true;
 
-	GameManager game_manager{ canvas };
+	std::random_device rd;
+	std::mt19937* engine = new std::mt19937{ rd() };
+
+	GameManager game_manager{ canvas, engine };
 	game_manager.loadAll();
 
 	while (isRunning) {
 		game_manager.runUpdateLoop();
 	}
+	delete engine;
 	return 0;
 }
