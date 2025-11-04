@@ -4,7 +4,7 @@
 #include "GameBase/GamesEngineeringBase.h"
 #include "SceneManagement.h"
 #include "UpdateData.h"
-#ifdef DEBUG
+#ifdef _DEBUG
 #include <iostream>
 #endif
 
@@ -16,7 +16,7 @@ class GameManager {
 	Scene scene;
 	GamesEngineeringBase::Timer timer;
 	std::mt19937* random_engine;
-#ifdef DEBUG
+#ifdef _DEBUG
 	float frame_time = 0.0f;
 	int frames_per_second = 0;
 #endif

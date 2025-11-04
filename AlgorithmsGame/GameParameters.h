@@ -1,8 +1,7 @@
 #ifndef GAMEPARAMETERS
 #define GAMEPARAMETERS
 
-// to activate debug mode, currently has frame rate
-#define DEBUG
+// _DEBUG is defined by VS automatically if in debug
 
 namespace GameParameters {
 
@@ -10,8 +9,7 @@ namespace GameParameters {
 	constexpr int window_height = 768;
 
 	namespace Camera {
-		constexpr float time_to_destination = 0.2f;  // secs
-		constexpr float percentage_progress = 0.2f;
+		constexpr float time_to_destination = 0.3f;  // secs
 	}
 
 	namespace Player {
@@ -21,8 +19,9 @@ namespace GameParameters {
 		constexpr float environment_collision[2][2] { {-5.0f, -10.0f}, {5.0f, 10.0f} };  // Should be smaller than sprite and feel fair
 		constexpr int attack1_strength = 20;
 		constexpr float attack1_cooldown = 0.5f;
-		constexpr float invulnerability_on_hit_per_hp = 0.025f;  // Time for which to decrease shield by 1HP
-		constexpr int shield_multiplier = 1;  // Invulnerability allowed (1 = damage, 2 = twice damage, etc)
+		constexpr float global_invulnerability = 0.4f;  // The player can only be damaged every X secs
+		constexpr float invulnerability_on_hit_per_hp = 0.05f;  // Time for which to decrease shield by 1HP
+		constexpr int shield_multiplier = 2;  // Invulnerability allowed (1 = damage, 2 = twice damage, etc)
 	}
 
 	namespace updateData {
@@ -47,8 +46,10 @@ namespace GameParameters {
 
 	namespace Enemies {
 		constexpr int unique_enemies = 1;
-		constexpr int max_enemy_count = 256;
-		constexpr float initial_spawn_time = 0.5f;
+		constexpr int max_enemy_count = 1024;
+		constexpr float spawn_time_per_chunk_level_1[] = {2.0f, 1.75f, 1.5f, 1.25f, 1.0f, 3.0f, 1.5f, 1.0f, 0.75f, 0.5f, 0.25f, 0.1f};
+		constexpr float chunk_time_level_1 = 15.0f;  // Determines, in secs, when to move to next index in spawn time array
+		constexpr int spawn_time_array_length_level_1 = 12;
 	}
 
 	namespace EnemyPlane {

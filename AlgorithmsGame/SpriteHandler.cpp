@@ -13,6 +13,19 @@ void Sprite::getPixelColour(int pixel[2], unsigned char colour[4]) {
 	colour[1] = temp[1];
 	colour[2] = temp[2];
 	colour[3] = image.alphaAt(x, y);
+	if (image_effect > 0) {
+		if (image_effect == 1) {
+			colour[0] = min(255, (int)colour[0] * 2);
+			colour[1] = min(255, (int)colour[1] * 2);
+			colour[2] = min(255, (int)colour[2] * 2);
+		}
+		else if (image_effect == 2) {
+			colour[0] = min(255, (int)colour[0] * 5);
+		}
+		else if (image_effect == 3) {
+			colour[2] = min(255, (int)colour[2] * 5);
+		}
+	}
 }
 
 bool Sprite::isInside(int x, int y) {

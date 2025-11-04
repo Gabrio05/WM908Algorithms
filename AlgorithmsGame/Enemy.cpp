@@ -3,18 +3,24 @@
 Enemy::Enemy() : collision{ GameParameters::EnemyPlane::environment_collision } {
 	position[0] = position[1] = 0.0f;
 	image = nullptr;
+	collision.current_position[0] = position[0];
+	collision.current_position[1] = position[1];
 }
 
 Enemy::Enemy(Sprite* spr) : collision{ GameParameters::EnemyPlane::environment_collision } {
 	position[0] = 0.0f;
 	position[1] = 0.0f;
 	image = spr;
+	collision.current_position[0] = position[0];
+	collision.current_position[1] = position[1];
 }
 
 Enemy::Enemy(Sprite* spr, int pos[2]) : collision{ GameParameters::EnemyPlane::environment_collision } {
 	position[0] = (float)pos[0];
 	position[1] = (float)pos[1];
 	image = spr;
+	collision.current_position[0] = position[0];
+	collision.current_position[1] = position[1];
 }
 
 void Enemy::setStats(int h, int damage) {
@@ -115,8 +121,6 @@ void Enemy::drawImage(GamesEngineeringBase::Window* canvas, int camera_pixel[2],
 					}
 					else if (image_effect == 2) {
 						temp_colour[0] = min(255, (int)temp_colour[0] * 5);
-						temp_colour[1] = min(255, (int)temp_colour[1] * 2);
-						temp_colour[2] = min(255, (int)temp_colour[2] * 2);
 					}
 				}
 				canvas->draw(pixel[0] - camera_pixel[0], pixel[1] - camera_pixel[1], temp_colour);

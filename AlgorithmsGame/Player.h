@@ -11,7 +11,8 @@ class Player {
 	float coordinates[2];
 	int health = GameParameters::Player::health;
 	int shield = 0;
-	float invulnerability_timer = GameParameters::Player::invulnerability_on_hit_per_hp;
+	float invulnerability_timer = 0.0f;
+	float shield_timer = GameParameters::Player::invulnerability_on_hit_per_hp;
 	float speed = GameParameters::Player::speed;
 	Attack attack1{ GameParameters::Player::attack1_strength };
 	float attack1_cooldown = GameParameters::Player::attack1_cooldown;

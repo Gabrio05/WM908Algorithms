@@ -4,7 +4,7 @@
 
 /* Camera controls, should only be used by Scene */
 class Camera {
-	float position[2];
+	float position[2];  // Center of camera
 	float time_to_destination = GameParameters::Camera::time_to_destination;
 public:
 	Camera();  // Camera at position 0,0

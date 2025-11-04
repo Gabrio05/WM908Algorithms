@@ -6,7 +6,7 @@ GameManager::GameManager(GamesEngineeringBase::Window& c, std::mt19937* engine) 
 
 void GameManager::runUpdateLoop() {
 	float delta = timer.dt();
-#ifdef DEBUG
+#ifdef _DEBUG
 	if (frame_time <= delta) {
 		std::cout << "Frames this second: " << frames_per_second << std::endl;
 		frames_per_second = 0;

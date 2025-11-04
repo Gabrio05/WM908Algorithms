@@ -1,5 +1,8 @@
 #include "Player.h"
 #include "SceneManagement.h"
+#ifdef _DEBUG
+#include <print>
+#endif
 
 Player::Player() {
 	coordinates[0] = 0.0f;
@@ -20,10 +23,16 @@ Player::Player(Scene* sc, int set[2]) {
 }
 
 void Player::takeDamage(Attack* incoming_attack) {
+	if (invulnerability_timer > 0.0f) { return; }
+	invulnerability_timer = GameParameters::Player::global_invulnerability;
 	int attack_damage = incoming_attack->damage;
+#ifdef _DEBUG
+	std::print("dam: {0}, timer: {1}, shield: {2}, shield_timer: {3}\n", attack_damage, invulnerability_timer, shield, shield_timer);
+#endif
 	if (shield > 0) {
 		if (shield >= attack_damage) {
 			shield -= attack_damage;
+			image.image_effect = 3;
 			return;
 		}
 		attack_damage -= shield;
@@ -31,7 +40,11 @@ void Player::takeDamage(Attack* incoming_attack) {
 	}
 	health -= attack_damage;
 	shield += attack_damage * GameParameters::Player::shield_multiplier;
-	invulnerability_timer = GameParameters::Player::invulnerability_on_hit_per_hp;
+	shield_timer = GameParameters::Player::invulnerability_on_hit_per_hp;
+	image.image_effect = 1;
+	if (health <= 0) {
+		image.image_effect = 2;
+	}
 }
 
 // Returns the base directional speed to be multiplied by x_percent and y_percent for fair movement
@@ -86,6 +99,7 @@ void Player::getCoordinates(int destination[2]) {
 }
 
 void Player::update(updateData update_data) {
+	image.image_effect = 0;  // Clear any sprite effects on player
 	movePlayer(update_data);
 	image.setPosition((int)(coordinates[0] + 0.5f), (int)(coordinates[1] + 0.5f));
 	attack1_cooldown -= update_data.delta;
@@ -93,11 +107,14 @@ void Player::update(updateData update_data) {
 		performAttack1();
 		attack1_cooldown += GameParameters::Player::attack1_cooldown;
 	}
-	if (shield > 0) {
+	if (invulnerability_timer > 0.0f) {
 		invulnerability_timer -= update_data.delta;
-		if (invulnerability_timer <= 0) {
+	}
+	if (shield > 0) {
+		shield_timer -= update_data.delta;
+		if (shield_timer <= 0) {
 			shield--;
-			invulnerability_timer += GameParameters::Player::invulnerability_on_hit_per_hp;
+			shield_timer += GameParameters::Player::invulnerability_on_hit_per_hp;
 		}
 	}
 	checkEnemyAttacks(update_data.delta);
@@ -109,7 +126,7 @@ void Player::checkEnemyAttacks(float delta) {
 	if (enemy_count == 0) {
 		return;
 	}
-	for (int i = 0l; i < enemy_count; i++) {
+	for (int i = 0; i < enemy_count; i++) {
 		scene->checkCollision(&collision, i, delta);
 		if (collision.has_collision_occured) {
 			takeDamage(&scene->enemies[i].attack);

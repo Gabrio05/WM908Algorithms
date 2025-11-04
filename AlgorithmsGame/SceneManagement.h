@@ -14,9 +14,10 @@ class Scene {
 	Camera camera{};
 	int width = GameParameters::window_width;
 	int height = GameParameters::window_height;
+	float total_time_elapsed = 0.0f;
 	Player player;
 	int enemy_count = 0;
-	float enemy_spawn_timer = GameParameters::Enemies::initial_spawn_time;
+	float enemy_spawn_timer = 0;
 	Background background{};
 	Sprite* enemy_sprites;
 	std::mt19937* random_engine;

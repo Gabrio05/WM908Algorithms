@@ -1,4 +1,7 @@
 #include "SceneManagement.h"
+#ifdef _DEBUG
+#include <print>
+#endif
 
 Scene::Scene() : player{this} {
 	enemy_sprites = new Sprite[GameParameters::Enemies::unique_enemies]{};
@@ -87,6 +90,7 @@ void Scene::drawImage(GamesEngineeringBase::Window* canvas) {
 }
 
 void Scene::update(updateData update_data) {
+	total_time_elapsed += update_data.delta;
 	// Player & Camera routine
 	player.update(update_data);  // Handles enemy collisions and attacks
 	int destination[2];
@@ -96,7 +100,11 @@ void Scene::update(updateData update_data) {
 	enemy_spawn_timer -= update_data.delta;
 	if (enemy_spawn_timer <= 0.0f) {
 		spawnEnemy();
-		enemy_spawn_timer += GameParameters::Enemies::initial_spawn_time;
+		int array_index = total_time_elapsed / GameParameters::Enemies::chunk_time_level_1;
+		if (array_index >= GameParameters::Enemies::spawn_time_array_length_level_1) {
+			array_index = GameParameters::Enemies::spawn_time_array_length_level_1 - 1;
+		}
+		enemy_spawn_timer += GameParameters::Enemies::spawn_time_per_chunk_level_1[array_index];
 	}
 	for (int i = 0; i < enemy_count; i++) {
 		enemies[i].update(update_data, destination);
@@ -125,15 +133,16 @@ void Scene::spawnEnemy() {
 	// Sides "rotate" clockwise to their corresponding side.
 	int spawn_position[2] { distribution_width_enemy(*random_engine) + camera.getPosition(0), 
 							distribution_height_enemy(*random_engine) + camera.getPosition(1) };
-	while (spawn_position[0] > camera.getPosition(0) - width / 2 - enemy_sprites[0].image.width
-		   && spawn_position[0] < camera.getPosition(0) + width / 2 + enemy_sprites[0].image.width
-		   && spawn_position[1] > camera.getPosition(1) - height / 2 - enemy_sprites[1].image.height
-		   && spawn_position[1] < camera.getPosition(1) + height / 2 + enemy_sprites[1].image.height) {
+	while (spawn_position[0] > camera.getPosition(0) - width / 2 - (int)(enemy_sprites[0].image.width)
+		   && spawn_position[0] < camera.getPosition(0) + width / 2 + (int)(enemy_sprites[0].image.width)
+		   && spawn_position[1] > camera.getPosition(1) - height / 2 - (int)(enemy_sprites[0].image.height)
+		   && spawn_position[1] < camera.getPosition(1) + height / 2 + (int)(enemy_sprites[0].image.height)) {
 		spawn_position[0] = distribution_width_enemy(*random_engine) + camera.getPosition(0);
 		spawn_position[1] = distribution_height_enemy(*random_engine) + camera.getPosition(1);
 	}
-	//spawn_position[0] = distribution_width_enemy(*random_engine) + camera.getPosition(0);
-	//spawn_position[1] = distribution_height_enemy(*random_engine) + camera.getPosition(1);
+#ifdef _DEBUG
+	std::print("spawn location: {0}, {1}\n", spawn_position[0] - camera.getPosition(0), spawn_position[1] - camera.getPosition(1));
+#endif
 	enemies[enemy_count] = Enemy(&(enemy_sprites[0]), spawn_position);
 	enemy_count++;
 }
