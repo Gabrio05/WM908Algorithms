@@ -31,10 +31,12 @@ Scene::~Scene() {
 	delete[] projectiles;
 }
 
-int Scene::getEnemyNumber() { return enemy_count; }
-
 void Scene::checkCollision(Collision* collision, int enemy_number, float delta) {
 	return enemies[enemy_number].checkCollision(collision, delta);
+}
+
+void Scene::checkProjectileCollision(Collision* collision, int enemy_number, float delta) {
+	return projectiles[enemy_number].checkCollision(collision, delta);
 }
 
 void Scene::drawImage_PerPixel(GamesEngineeringBase::Window* canvas, int index_function, int world_pixel[2]) {
@@ -109,7 +111,7 @@ void Scene::drawImage(GamesEngineeringBase::Window* canvas) {
 void Scene::update(updateData update_data) {
 	total_time_elapsed += update_data.delta;
 	// Player & Camera routine
-	player.update(update_data);  // Handles enemy collisions and attacks
+	player.update(update_data);  // Handles enemy and projectile collisions and attacks
 	int destination[2];
 	player.getCoordinates(destination);
 	camera.updatePosition(destination, update_data.delta);
@@ -119,9 +121,31 @@ void Scene::update(updateData update_data) {
 		enemies[i].update(update_data, destination);
 	}
 	cleanUpEnemies();
+	// Projectile routine
 	throwEnemyProjectilesRoutine(update_data.delta);
+	bool has_friendly_projectile = false;
+	int decoy_destination[2];
 	for (int i = 0; i < projectile_count; i++) {
-		projectiles[i].update(update_data, destination);
+		if (projectiles[i].friendliness()) {  // Haha, get decoyed
+			has_friendly_projectile = true;
+			decoy_destination[0] = projectiles[i].getPosition(0);
+			decoy_destination[1] = projectiles[i].getPosition(1);
+			break;
+		}
+	}
+	if (!has_friendly_projectile) {
+		decoy_destination[0] = destination[0];
+		decoy_destination[1] = destination[1];
+	}
+	for (int i = 0; i < projectile_count; i++) {
+		projectiles[i].update(update_data, decoy_destination);
+	}
+	if (has_friendly_projectile) {
+		for (int i = 0; i < projectile_count; i++) {
+			if (projectiles[i].friendliness()) {
+				friendlyProjectileLateUpdate(i, update_data.delta);
+			}
+		}
 	}
 	cleanUpProjectiles();
 }
@@ -250,6 +274,25 @@ void Scene::throwProjectile(bool is_friendly, float pos[2], int attack_damage, f
 	}
 	projectiles[projectile_count] = Projectile(spr, is_friendly, pos, attack_damage, vel);
 	projectile_count++;
+}
+
+void Scene::friendlyProjectileLateUpdate(int friendly_index, float delta) {
+	Collision* col = projectiles[friendly_index].getCollisionPointer();
+	for (int i = 0; i < projectile_count; i++) {
+		if (!projectiles[i].friendliness()) {
+			projectiles[i].checkCollision(col, delta);
+			if (col->has_collision_occured) {
+				projectiles[i].is_used = true;
+			}
+		}
+	}
+	for (int i = 0; i < enemy_count; i++) {
+		enemies[i].checkCollision(col, delta);
+		if (col->has_collision_occured) {
+			enemies[i].takeDamage(&projectiles[i].attack);
+			projectiles[friendly_index].is_used = true;
+		}
+	}
 }
 
 void Scene::cleanUpProjectiles() {

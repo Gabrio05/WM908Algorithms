@@ -11,6 +11,8 @@ public:
 	bool is_solid = false;  // Solid/stopping collision occurs if at least one entity has is_solid == true
 	float current_velocity[2] { 0.0f, 0.0f };
 
+	// When collision is checked, will reset (i.e. clear()) for the incoming collision object, 
+	// but will remain true if already true for the "home" collision object.
 	bool has_collision_occured = false;
 	bool has_solid_collision_occured = false;
 	float collision_time = 0.0f;

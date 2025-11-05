@@ -16,20 +16,35 @@ Projectile::Projectile(Sprite* spr, bool is_friendly, float pos[2], int attack_d
 	is_player_friendly = is_friendly;
 	position[0] = pos[0];
 	position[1] = pos[1];
+	velocity_move = true;
 	velocity[0] = vel[0];
 	velocity[1] = vel[1];
+}
+
+void Projectile::checkCollision(Collision* coll, float delta) {
+	return collision.checkCollision(coll, delta);
 }
 
 // Returns the base directional speed to be multiplied by x_percent and y_percent for fair movement
 float fairMovement(float x_percent, float y_percent, float speed);
 
 void Projectile::update(updateData update_data, int player_pos[2]) {
+	float delta = update_data.delta;
+
+	if (is_player_friendly) {
+		lifespan -= delta;
+		if (lifespan <= 0.0f) {
+			is_used = true;
+		}
+	}
+
 	if (velocity_move) {
 		position[0] += velocity[0] * update_data.delta;
 		position[1] += velocity[1] * update_data.delta;
+		collision.current_position[0] = position[0];
+		collision.current_position[1] = position[1];
 		return;
 	}
-	float delta = update_data.delta;
 	float difference[2] = { (float)player_pos[0] - position[0], (float)player_pos[1] - position[1] };
 	if (difference[0] == 0.0f && difference[1] == 0.0f) {
 		return;

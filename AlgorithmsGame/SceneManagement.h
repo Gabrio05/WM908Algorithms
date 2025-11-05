@@ -47,8 +47,10 @@ public:
 	Scene& operator=(const Scene&) = delete;
 	Scene(const Scene&) = delete;
 
-	int getEnemyNumber();
+	const int getEnemyNumber() { return enemy_count; }
+	const int getProjectileNumber() { return projectile_count; }
 	void checkCollision(Collision* collision, int enemy_number, float delta);
+	void checkProjectileCollision(Collision* collision, int enemy_number, float delta);
 	void drawImage(GamesEngineeringBase::Window* canvas);
 	//void getPixelColour(int cameraPixel[2], unsigned char returnColour[3]);  // Automatically translates camera pixel to world pixel
 	void update(updateData update_data);  // Frame update loop, must call update function of all active entities in scene
@@ -56,6 +58,7 @@ public:
 	void spawnEnemy(int enemy_number);
 	void throwProjectile(bool is_friendly, float pos[2], int attack_damage);
 	void throwProjectile(bool is_friendly, float pos[2], int attack_damage, float vel[2]);
+	void friendlyProjectileLateUpdate(int i, float delta);
 	void cleanUpEnemies();
 	void cleanUpProjectiles();
 };
