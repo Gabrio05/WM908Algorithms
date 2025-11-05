@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "Background.h"
 #include "Enemy.h"
+#include "Projectile.h"
 
 /* One scene entity per scene. Each level is a separate scene. */
 class Scene {
@@ -17,9 +18,11 @@ class Scene {
 	float total_time_elapsed = 0.0f;
 	Player player;
 	int enemy_count = 0;
-	float enemy_spawn_timer = 0;
+	float enemy_spawn_timer[GameParameters::Enemies::unique_enemies]{};
 	Background background{};
 	Sprite* enemy_sprites;
+	int projectile_count = 0;
+	Sprite* projectile_sprites;
 	std::mt19937* random_engine;
 	std::uniform_int_distribution<> distribution_width_enemy{ -width * 2, width * 2 };
 	std::uniform_int_distribution<> distribution_height_enemy{ -height * 2, height * 2 };
@@ -31,8 +34,13 @@ class Scene {
 	void drawImage_Background(GamesEngineeringBase::Window*, int actual_pixel[2], int x, int y);
 	void drawImage_Player(GamesEngineeringBase::Window*, int actual_pixel[2], int x, int y);
 	void drawImage_Enemies(GamesEngineeringBase::Window*, int world_pixel[2]);
+	void drawImage_Projectiles(GamesEngineeringBase::Window*, int world_pixel[2]);
+
+	void spawnEnemyRoutine(float delta);
+	void throwEnemyProjectilesRoutine(float delta);
 public:
 	Enemy* enemies;  // Enemy order is not guarranteed
+	Projectile* projectiles;  // idem for projectiles
 	Scene();
 	Scene(std::mt19937* engine);
 	~Scene();
@@ -44,9 +52,12 @@ public:
 	void drawImage(GamesEngineeringBase::Window* canvas);
 	//void getPixelColour(int cameraPixel[2], unsigned char returnColour[3]);  // Automatically translates camera pixel to world pixel
 	void update(updateData update_data);  // Frame update loop, must call update function of all active entities in scene
-	void loadSprite(int i, std::string filename);  // Index 0
-	void spawnEnemy();
+	void loadSprite(int i, int j, std::string filename);  // Player, background, projectiles, enemies on i in order, j for specific sprite
+	void spawnEnemy(int enemy_number);
+	void throwProjectile(bool is_friendly, float pos[2], int attack_damage);
+	void throwProjectile(bool is_friendly, float pos[2], int attack_damage, float vel[2]);
 	void cleanUpEnemies();
+	void cleanUpProjectiles();
 };
 
 #endif

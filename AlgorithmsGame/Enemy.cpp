@@ -1,13 +1,13 @@
 #include "Enemy.h"
 
-Enemy::Enemy() : collision{ GameParameters::EnemyPlane::environment_collision } {
+Enemy::Enemy() : collision{ GameParameters::Enemies::environment_collision[0] } {
 	position[0] = position[1] = 0.0f;
 	image = nullptr;
 	collision.current_position[0] = position[0];
 	collision.current_position[1] = position[1];
 }
 
-Enemy::Enemy(Sprite* spr) : collision{ GameParameters::EnemyPlane::environment_collision } {
+Enemy::Enemy(Sprite* spr) : collision{ GameParameters::Enemies::environment_collision[0] } {
 	position[0] = 0.0f;
 	position[1] = 0.0f;
 	image = spr;
@@ -15,7 +15,7 @@ Enemy::Enemy(Sprite* spr) : collision{ GameParameters::EnemyPlane::environment_c
 	collision.current_position[1] = position[1];
 }
 
-Enemy::Enemy(Sprite* spr, int pos[2]) : collision{ GameParameters::EnemyPlane::environment_collision } {
+Enemy::Enemy(Sprite* spr, int pos[2]) : collision{ GameParameters::Enemies::environment_collision[0] } {
 	position[0] = (float)pos[0];
 	position[1] = (float)pos[1];
 	image = spr;
@@ -23,9 +23,22 @@ Enemy::Enemy(Sprite* spr, int pos[2]) : collision{ GameParameters::EnemyPlane::e
 	collision.current_position[1] = position[1];
 }
 
-void Enemy::setStats(int h, int damage) {
+Enemy::Enemy(Sprite* spr, int pos[2], int enemy_number) : collision{ GameParameters::Enemies::environment_collision[enemy_number] } {
+	position[0] = (float)pos[0];
+	position[1] = (float)pos[1];
+	image = spr;
+	collision.current_position[0] = position[0];
+	collision.current_position[1] = position[1];
+	setStats(GameParameters::Enemies::health_for_enemies[enemy_number],
+			 GameParameters::Enemies::attack_damage_for_enemies[enemy_number],
+			 GameParameters::Enemies::speed_for_enemies[enemy_number]);
+	if (enemy_number == 2) { is_throwing_projectiles = true; }
+}
+
+void Enemy::setStats(int h, int damage, float sp) {
 	health = h;
 	attack = Attack{ damage };
+	speed = sp;
 }
 
 void Enemy::setImagePositionAuto() {
@@ -56,7 +69,9 @@ float fairMovement(float x_percent, float y_percent, float speed);
 void Enemy::update(updateData update_data, int player_pos[2]) {
 	float delta = update_data.delta;
 	float difference[2] = { (float)player_pos[0] - position[0], (float)player_pos[1] - position[1] };
-	if (difference[0] == 0.0f && difference[1] == 0.0f) {
+	if (difference[0] == 0.0f && difference[1] == 0.0f 
+		|| is_throwing_projectiles && abs(difference[0]) < GameParameters::Projectiles::max_enemy_distance_x 
+								   && abs(difference[1]) < GameParameters::Projectiles::max_enemy_distance_y) {
 		return;
 	}
 	float percent[2];
@@ -133,8 +148,4 @@ void Enemy::drawImage(GamesEngineeringBase::Window* canvas, int camera_pixel[2],
 void Enemy::getPixelColour(int pixel[2], unsigned char colour[4]) {
 	setImagePositionAuto();
 	image->getPixelColour(pixel, colour);
-}
-
-void Enemy::loadSprite() {
-	image->image.load(GameParameters::EnemyPlane::filename);
 }

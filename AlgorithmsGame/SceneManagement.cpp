@@ -6,19 +6,29 @@
 Scene::Scene() : player{this} {
 	enemy_sprites = new Sprite[GameParameters::Enemies::unique_enemies]{};
 	enemies = new Enemy[GameParameters::Enemies::max_enemy_count]{};
-	spawnEnemy();
+	projectile_sprites = new Sprite[GameParameters::Projectiles::unique_friendly_sprites + GameParameters::Projectiles::unique_enemy_sprites]{};
+	projectiles = new Projectile[GameParameters::Projectiles::max_projectile_count]{};
+	for (int i = 0; i < GameParameters::Enemies::unique_enemies; i++) {
+		enemy_spawn_timer[i] = GameParameters::Enemies::global_spawn_time_per_chunk_level_1[i][0];
+	}
 	random_engine = nullptr;
 }
 
 Scene::Scene(std::mt19937* engine) : player{ this }, random_engine{ engine } {
 	enemy_sprites = new Sprite[GameParameters::Enemies::unique_enemies]{};
 	enemies = new Enemy[GameParameters::Enemies::max_enemy_count]{};
-	spawnEnemy();
+	projectile_sprites = new Sprite[GameParameters::Projectiles::unique_friendly_sprites + GameParameters::Projectiles::unique_enemy_sprites]{};
+	projectiles = new Projectile[GameParameters::Projectiles::max_projectile_count]{};
+	for (int i = 0; i < GameParameters::Enemies::unique_enemies; i++) {
+		enemy_spawn_timer[i] = GameParameters::Enemies::global_spawn_time_per_chunk_level_1[i][0];
+	}
 }
 
 Scene::~Scene() {
 	delete[] enemy_sprites;
 	delete[] enemies;
+	delete[] projectile_sprites;
+	delete[] projectiles;
 }
 
 int Scene::getEnemyNumber() { return enemy_count; }
@@ -79,6 +89,12 @@ void Scene::drawImage_Enemies(GamesEngineeringBase::Window* canvas, int world_pi
 	}
 }
 
+void Scene::drawImage_Projectiles(GamesEngineeringBase::Window* canvas, int world_pixel[2]) {
+	for (int i = 0; i < projectile_count; i++) {
+		projectiles[i].drawImage(canvas, world_pixel, height, width);
+	}
+}
+
 void Scene::drawImage(GamesEngineeringBase::Window* canvas) {
 	// Background -> Player -> Enemies -> Player Projectiles -> Enemy Projectiles -> Effects (if any)
 	int world_pixel[2];
@@ -87,6 +103,7 @@ void Scene::drawImage(GamesEngineeringBase::Window* canvas) {
 	drawImage_PerPixel(canvas, 0, world_pixel);  // Background
 	drawImage_PerPixel(canvas, 1, world_pixel);  // Player
 	drawImage_Enemies(canvas, world_pixel);  // Enemies
+	drawImage_Projectiles(canvas, world_pixel);  // Projectiles
 }
 
 void Scene::update(updateData update_data) {
@@ -97,34 +114,48 @@ void Scene::update(updateData update_data) {
 	player.getCoordinates(destination);
 	camera.updatePosition(destination, update_data.delta);
 	// Enemy routine
-	enemy_spawn_timer -= update_data.delta;
-	if (enemy_spawn_timer <= 0.0f) {
-		spawnEnemy();
-		int array_index = total_time_elapsed / GameParameters::Enemies::chunk_time_level_1;
-		if (array_index >= GameParameters::Enemies::spawn_time_array_length_level_1) {
-			array_index = GameParameters::Enemies::spawn_time_array_length_level_1 - 1;
-		}
-		enemy_spawn_timer += GameParameters::Enemies::spawn_time_per_chunk_level_1[array_index];
-	}
+	spawnEnemyRoutine(update_data.delta);
 	for (int i = 0; i < enemy_count; i++) {
 		enemies[i].update(update_data, destination);
 	}
 	cleanUpEnemies();
+	throwEnemyProjectilesRoutine(update_data.delta);
+	for (int i = 0; i < projectile_count; i++) {
+		projectiles[i].update(update_data, destination);
+	}
+	cleanUpProjectiles();
 }
 
-void Scene::loadSprite(int i, std::string filename) {
+void Scene::loadSprite(int i, int j, std::string filename) {
 	if (i == 0) {
 		player.image.image.load(filename);
 	}
-	if (i == 1) {
+	else if (i == 1) {
 		background.loadAllTiles();
 	}
-	if (i == 2) {
-		enemies[0].loadSprite();
+	else if (i == 2) {
+		projectile_sprites[j].image.load(filename);
+	}
+	else if (i == 3) {
+		enemy_sprites[j].image.load(filename);
 	}
 }
 
-void Scene::spawnEnemy() {
+void Scene::spawnEnemyRoutine(float delta) {
+	for (int i = 0; i < GameParameters::Enemies::unique_enemies; i++) {
+		enemy_spawn_timer[i] -= delta;
+		if (enemy_spawn_timer[i] <= 0.0f) {
+			spawnEnemy(i);
+			int array_index = total_time_elapsed / GameParameters::Enemies::global_chunk_time_level_1[i];
+			if (array_index >= GameParameters::Enemies::global_spawn_time_array_length_level_1[i]) {
+				array_index = GameParameters::Enemies::global_spawn_time_array_length_level_1[i] - 1;
+			}
+			enemy_spawn_timer[i] += GameParameters::Enemies::global_spawn_time_per_chunk_level_1[i][array_index];
+		}
+	}
+}
+
+void Scene::spawnEnemy(int enemy_number) {
 	if (enemy_count >= GameParameters::Enemies::max_enemy_count) {
 		return;
 	}
@@ -133,27 +164,99 @@ void Scene::spawnEnemy() {
 	// Sides "rotate" clockwise to their corresponding side.
 	int spawn_position[2] { distribution_width_enemy(*random_engine) + camera.getPosition(0), 
 							distribution_height_enemy(*random_engine) + camera.getPosition(1) };
-	while (spawn_position[0] > camera.getPosition(0) - width / 2 - (int)(enemy_sprites[0].image.width)
-		   && spawn_position[0] < camera.getPosition(0) + width / 2 + (int)(enemy_sprites[0].image.width)
-		   && spawn_position[1] > camera.getPosition(1) - height / 2 - (int)(enemy_sprites[0].image.height)
-		   && spawn_position[1] < camera.getPosition(1) + height / 2 + (int)(enemy_sprites[0].image.height)) {
+	while (spawn_position[0] > camera.getPosition(0) - width / 2 - (int)(enemy_sprites[enemy_number].image.width)
+		   && spawn_position[0] < camera.getPosition(0) + width / 2 + (int)(enemy_sprites[enemy_number].image.width)
+		   && spawn_position[1] > camera.getPosition(1) - height / 2 - (int)(enemy_sprites[enemy_number].image.height)
+		   && spawn_position[1] < camera.getPosition(1) + height / 2 + (int)(enemy_sprites[enemy_number].image.height)) {
 		spawn_position[0] = distribution_width_enemy(*random_engine) + camera.getPosition(0);
 		spawn_position[1] = distribution_height_enemy(*random_engine) + camera.getPosition(1);
 	}
 #ifdef _DEBUG
 	std::print("spawn location: {0}, {1}\n", spawn_position[0] - camera.getPosition(0), spawn_position[1] - camera.getPosition(1));
 #endif
-	enemies[enemy_count] = Enemy(&(enemy_sprites[0]), spawn_position);
+	enemies[enemy_count] = Enemy(&(enemy_sprites[enemy_number]), spawn_position, enemy_number);
 	enemy_count++;
 }
 
 void Scene::cleanUpEnemies() {
-	int killed = 0;
 	for (int i = 0; i < enemy_count; i++) {
 		while (enemies[i].getHealth() <= 0 && i < enemy_count) {
-			killed++;
-			enemies[i] = enemies[enemy_count - killed];
+			enemies[i] = enemies[enemy_count - 1];
 			enemy_count--;
+		}
+	}
+}
+
+void Scene::throwEnemyProjectilesRoutine(float delta) {
+	for (int i = 0; i < enemy_count; i++) {
+		if (enemies[i].is_throwing_projectiles) {
+			enemies[i].projectile_delay -= delta;
+			if (enemies[i].projectile_delay <= 0) {
+				float pos[2];
+				pos[0] = (float)enemies[i].getPosition(0);
+				pos[1] = (float)enemies[i].getPosition(1);
+				throwProjectile(false, pos, enemies[i].attack.damage);
+				enemies[i].projectile_delay += GameParameters::Projectiles::enemy_delay;
+			}
+		}
+	}
+}
+
+void Scene::throwProjectile(bool is_friendly, float pos[2], int attack_damage) {
+	if (projectile_count > GameParameters::Projectiles::max_projectile_count) {
+		if (!is_friendly) { return; }
+		bool cleaned = false;
+		for (int i = 0; i < projectile_count; i++) {
+			if (!projectiles[i].friendliness()) {
+				projectiles[i] = projectiles[projectile_count - 1];
+				projectile_count--;
+				cleaned = true;
+				break;
+			}
+		}
+		if (!cleaned) { return; }
+	}
+	Sprite* spr;
+	if (is_friendly) {
+		spr = &(projectile_sprites[0]);
+	}
+	else {
+		spr = &(projectile_sprites[GameParameters::Projectiles::unique_friendly_sprites]);
+	}
+	projectiles[projectile_count] = Projectile(spr, is_friendly, pos, attack_damage);
+	projectile_count++;
+}
+
+void Scene::throwProjectile(bool is_friendly, float pos[2], int attack_damage, float vel[2]) {
+	if (projectile_count > GameParameters::Projectiles::max_projectile_count) {
+		if (!is_friendly) { return; }
+		bool cleaned = false;
+		for (int i = 0; i < projectile_count; i++) {
+			if (!projectiles[i].friendliness()) {
+				projectiles[i] = projectiles[projectile_count - 1];
+				projectile_count--;
+				cleaned = true;
+				break;
+			}
+		}
+		if (!cleaned) { return; }
+	}
+	Sprite* spr;
+	if (is_friendly) {
+		spr = &(projectile_sprites[0]);
+	}
+	else {
+		spr = &(projectile_sprites[GameParameters::Projectiles::unique_friendly_sprites]);
+	}
+	projectiles[projectile_count] = Projectile(spr, is_friendly, pos, attack_damage, vel);
+	projectile_count++;
+}
+
+void Scene::cleanUpProjectiles() {
+	for (int i = 0; i < projectile_count; i++) {
+		while (projectiles[i].is_used && i < projectile_count) {
+			projectiles[i] = projectiles[projectile_count - 1];
+			projectile_count--;
 		}
 	}
 }
