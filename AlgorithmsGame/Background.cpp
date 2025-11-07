@@ -19,18 +19,27 @@ void Background::loadAllTiles() {
 	}
 }
 
+void Background::populateMap(int* indices) {
+	for (int i = 0; i < GameParameters::Background::map_size[0] * GameParameters::Background::map_size[1]; i++) {
+		tile_index[i] = indices[i];
+	}
+}
+
 bool Background::isInside(int x, int y) {
-	return (x >= coordinates[0] && x <= coordinates[0] + tile_width * tile_size[0]
-		&& y >= coordinates[1] && y <= (coordinates[1] + tile_height * tile_size[1]));
+	return (x >= coordinates[0] && x < coordinates[0] + tile_width * tile_size[0]
+		&& y >= coordinates[1] && y < coordinates[1] + tile_height * tile_size[1]);
 }
 
 void Background::getPixelColour(int pixel[2], unsigned char colour[4]) {
 	int actual_pixel[2];
 	actual_pixel[0] = pixel[0] - coordinates[0];
 	actual_pixel[1] = pixel[1] - coordinates[1];
+	if (actual_pixel[0] == 0 && actual_pixel[1] == 0 && pixel[0] != 0) {
+		int i = 3;
+	}
 	if (isInside(actual_pixel[0], actual_pixel[1])) {
-		//int sprite_index = tile_index[(int)(x / tile_size[0])][(int)(y / tile_size[1])];  // TODO
-		int sprite_index = 0;
+		int sprite_index = tile_index[(int)(actual_pixel[0] / tile_size[0]) 
+			+ (int)(actual_pixel[1] / tile_size[1]) * GameParameters::Background::map_size[0]];
 		actual_pixel[0] = actual_pixel[0] % tile_size[0];
 		actual_pixel[1] = actual_pixel[1] % tile_size[1];
 		tiles[sprite_index].getPixelColour(actual_pixel, colour);

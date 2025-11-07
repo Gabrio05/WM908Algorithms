@@ -37,4 +37,5 @@ void GameManager::loadAll() {
 	scene.loadSprite(3, 1, GameParameters::Enemies::filename2);
 	scene.loadSprite(3, 2, GameParameters::Enemies::filename3);
 	scene.loadSprite(3, 3, GameParameters::Enemies::filename4);
+	scene.loadMap(GameParameters::Background::map_filename);
 }

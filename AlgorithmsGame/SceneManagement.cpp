@@ -165,6 +165,43 @@ void Scene::loadSprite(int i, int j, std::string filename) {
 	}
 }
 
+void Scene::loadMap(std::string filename) {
+	int indices[GameParameters::Background::map_size[0] * GameParameters::Background::map_size[1]];
+	std::ifstream file;
+	file.open(filename);
+	char ch;
+	int line = -6;
+	int i = 0;
+	int buffer = -1;
+	while (!file.eof()) {
+		ch = file.get();
+		if (ch == '\n') {
+			i = 0;
+			buffer = -1;
+			line++;
+			continue;
+		}
+		if (line < 0) {
+			continue;
+		}
+		if (ch == ',') {
+			indices[line * GameParameters::Background::map_size[0] + i] = buffer;
+			buffer = -1;
+			i++;
+			continue;
+		}
+		if (buffer == -1) {
+			buffer = ch - '0';
+		}
+		else {
+			buffer *= 10;
+			buffer += ch - '0';
+		}
+	}
+	file.close();
+	background.populateMap(indices);
+}
+
 void Scene::spawnEnemyRoutine(float delta) {
 	for (int i = 0; i < GameParameters::Enemies::unique_enemies; i++) {
 		enemy_spawn_timer[i] -= delta;

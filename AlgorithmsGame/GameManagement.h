@@ -1,12 +1,10 @@
 #ifndef GAMEMANAGEMENT
 #define GAMEMANAGEMENT
+#include <iostream>
 #include "GameParameters.h"
 #include "GameBase/GamesEngineeringBase.h"
 #include "SceneManagement.h"
 #include "UpdateData.h"
-#ifdef _DEBUG
-#include <iostream>
-#endif
 
 /* Manages entire game including scene loading and basic update loop. */
 class GameManager {

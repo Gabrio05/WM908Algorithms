@@ -46,7 +46,7 @@ namespace GameParameters {
 													"Resources/16.png", "Resources/17.png", "Resources/18.png", "Resources/19.png", 
 													"Resources/20.png", "Resources/21.png", "Resources/22.png", "Resources/23.png" };
 		constexpr int map_size[2] { 42, 42 };
-		constexpr char map_filename[] = "Resources/tiles.txt";
+		constexpr char map_filename[] = "Resources/map.txt";
 		constexpr float environment_collision[2][2] { {-15.0f, -15.0f}, {15.0f, 15.0f} };  // HACK
 	}
 
