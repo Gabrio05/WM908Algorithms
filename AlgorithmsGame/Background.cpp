@@ -25,6 +25,10 @@ void Background::populateMap(int* indices) {
 	}
 }
 
+void Background::setFixedWorld() {
+	infinite_world = false;
+}
+
 bool Background::isInside(int x, int y) {
 	return (x >= coordinates[0] && x < coordinates[0] + tile_width * tile_size[0]
 		&& y >= coordinates[1] && y < coordinates[1] + tile_height * tile_size[1]);
@@ -32,10 +36,17 @@ bool Background::isInside(int x, int y) {
 
 void Background::getPixelColour(int pixel[2], unsigned char colour[4]) {
 	int actual_pixel[2];
-	actual_pixel[0] = pixel[0] - coordinates[0];
-	actual_pixel[1] = pixel[1] - coordinates[1];
-	if (actual_pixel[0] == 0 && actual_pixel[1] == 0 && pixel[0] != 0) {
-		int i = 3;
+	actual_pixel[0] = pixel[0] - coordinates[0];  // Coordinate from pov of (0, 0) of background
+	actual_pixel[1] = pixel[1] - coordinates[1];  // Potential BUG? TODO, fine as long as coordinates{0, 0}
+	if (infinite_world) {
+		actual_pixel[0] = actual_pixel[0] % (tile_width * tile_size[0]);
+		actual_pixel[1] = actual_pixel[1] % (tile_height * tile_size[1]);
+		if (actual_pixel[0] < 0) {
+			actual_pixel[0] = tile_width * tile_size[0] + actual_pixel[0];
+		}
+		if (actual_pixel[1] < 0) {
+			actual_pixel[1] = tile_height * tile_size[1] + actual_pixel[1];
+		}
 	}
 	if (isInside(actual_pixel[0], actual_pixel[1])) {
 		int sprite_index = tile_index[(int)(actual_pixel[0] / tile_size[0]) 

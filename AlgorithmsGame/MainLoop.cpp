@@ -18,6 +18,7 @@ int main() {
 
 	GameManager game_manager{ canvas, engine };
 	game_manager.loadAll();
+	game_manager.startRoutine();
 
 	while (isRunning) {
 		game_manager.runUpdateLoop();

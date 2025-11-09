@@ -12,6 +12,7 @@ class Background {
 	int* tile_index;  // y * x_size + x
 	int tile_size[2] { GameParameters::Background::tile_size[0], GameParameters::Background::tile_size[1]};
 	bool isInside(int x, int y);
+	bool infinite_world = true;
 	Collision* tile_collisions;
 public:
 	Background();
@@ -20,6 +21,7 @@ public:
 	Background(const Background&) = delete;
 	void loadAllTiles();
 	void populateMap(int* indices);
+	void setFixedWorld();
 	void getPixelColour(int pixel[2], unsigned char colour[4]);
 };
 

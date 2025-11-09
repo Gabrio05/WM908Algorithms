@@ -16,15 +16,15 @@ namespace GameParameters {
 		constexpr int health = 100;
 		constexpr float speed = 100.0f;  // pixels per second
 		constexpr char filename[] = "Planes/Fighter_type_A1.png";
-		constexpr float environment_collision[2][2] { {-4.0f, -30.0f}, {4.0f, 30.0f} };  // Should be smaller than sprite and feel fair
+		constexpr float environment_collision[2][2]{ {-4.0f, -30.0f}, {4.0f, 30.0f} };  // Should be smaller than sprite and feel fair
 		constexpr int attack1_strength = 20;  // Continuous attack, does not require a button press
 		constexpr float attack1_cooldown = 0.5f;
 		constexpr int attack2_strength = 100;  // AoE attack around the top N enemies & around player
-		constexpr float attack2_cooldown = 10.0f;
+		constexpr float attack2_cooldown = 8.0f;
 		constexpr int attack2_enemies_to_attack = 5;
 		constexpr float attack2_aoe_radius = 50.0f;
 		constexpr int attack3_strength = 250;  // Flare that fires in last direction the player was pointing in
-		constexpr float attack3_cooldown = 15.0f;
+		constexpr float attack3_cooldown = 10.0f;
 		constexpr float global_invulnerability = 0.4f;  // The player can only be damaged every X secs
 		constexpr float invulnerability_on_hit_per_hp = 0.05f;  // Time for which to decrease shield by 1HP
 		constexpr int shield_multiplier = 2;  // Invulnerability allowed (1 = damage, 2 = twice damage, etc)
@@ -47,7 +47,10 @@ namespace GameParameters {
 													"Resources/20.png", "Resources/21.png", "Resources/22.png", "Resources/23.png" };
 		constexpr int map_size[2] { 42, 42 };
 		constexpr char map_filename[] = "Resources/map.txt";
-		constexpr float environment_collision[2][2] { {-15.0f, -15.0f}, {15.0f, 15.0f} };  // HACK
+		constexpr float environment_collision[2][2]{ {-15.0f, -15.0f}, {15.0f, 15.0f} };  // HACK
+		constexpr int fixed_world_player_constraints[2][2]{ {window_width / 2, window_height / 2}, 
+			{tile_size[0] * map_size[0] - window_width / 2, tile_size[1] * map_size[1] - window_height / 2}};
+		constexpr float fixed_world_spawn_point[2]{ window_width / 2, window_height / 2 };
 	}
 
 	namespace Enemies {
@@ -58,18 +61,18 @@ namespace GameParameters {
 		// Chunk time is determined by the variable below
 		constexpr float global_spawn_time_per_chunk_level_1[][12] = { { 2.0f, 1.75f, 1.5f, 1.25f, 1.0f, 3.0f, 1.5f, 1.0f, 0.75f, 0.5f, 0.25f, 0.1f },
 																	  { 20.0f, 3.0f, 3.0f, 2.5f, 2.0f, 5.0f, 2.5f, 1.5f, 1.25f, 1.0f, 0.75f, 0.5f },
-																	  { 45.0f, 5.0f, 5.0f, 3.0f, 2.0f, 1.0f }, 
+																	  { 45.0f, 5.0f, 5.0f, 3.0f, 2.0f, 1.0f },
 																	  { 75.0f, 300.0f } };
 		constexpr int global_spawn_time_array_length_level_1[] = { 12, 12, 6, 2 };
-		constexpr float global_chunk_time_level_1[] = { 15.0f, 15.0f, 30.0f, 100.0f };
+		constexpr float global_chunk_time_level_1[] = { 15.0f, 15.0f, 30.0f, 50.0f };
 
 		constexpr int health_for_enemies[] = { 40, 80, 25, 1000 };
 		constexpr int attack_damage_for_enemies[] = { 20, 20, 30, 50 };
 		constexpr float speed_for_enemies[] = { 60.0f, 90.0f, 150.0f, 99.0f };
 
-		constexpr float environment_collision[unique_enemies][2][2]{ { {-3.0f, -7.0f}, {3.0f, 7.0f} }, 
-																	 { {-3.0f, -7.0f}, {3.0f, 7.0f} }, 
-																     { {-3.0f, -7.0f}, {3.0f, 7.0f} }, 
+		constexpr float environment_collision[unique_enemies][2][2]{ { {-3.0f, -7.0f}, {3.0f, 7.0f} },
+																	 { {-3.0f, -7.0f}, {3.0f, 7.0f} },
+																	 { {-3.0f, -7.0f}, {3.0f, 7.0f} },
 																	 { {-4.0f, -30.0f}, {4.0f, 30.0f} } };
 
 		constexpr char filename1[] = "Planes/GreenPlaneSingle.png";
@@ -94,7 +97,7 @@ namespace GameParameters {
 		constexpr float enemy_speed = 95.0f;
 		constexpr float friendly_speed = 65.0f;
 		constexpr float friendly_lifespan = 4.0f;  // Automatically gets used up after this
-		constexpr float max_enemy_distance_x = 300.0f;
+		constexpr float max_enemy_distance_x = 300.0f;  // Enemies throwing projectiles wil stop at this distance of the player
 		constexpr float max_enemy_distance_y = 200.0f;
 		
 

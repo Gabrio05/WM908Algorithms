@@ -19,6 +19,7 @@ class Scene {
 	float total_time_elapsed = 0.0f;
 	Player player;
 	int enemy_count = 0;
+	int total_kills = 0;
 	float enemy_spawn_timer[GameParameters::Enemies::unique_enemies]{};
 	Background background{};
 	Sprite* enemy_sprites;
@@ -27,7 +28,6 @@ class Scene {
 	std::mt19937* random_engine;
 	std::uniform_int_distribution<> distribution_width_enemy{ -width * 2, width * 2 };
 	std::uniform_int_distribution<> distribution_height_enemy{ -height * 2, height * 2 };
-	std::uniform_int_distribution<> coinflip{ 0, 1 };
 
 	// Drawing Functions
 	// Background -> Player -> Enemies -> Player Projectiles -> Enemy Projectiles -> Effects (if any)
@@ -42,14 +42,18 @@ class Scene {
 public:
 	Enemy* enemies;  // Enemy order is not guarranteed
 	Projectile* projectiles;  // idem for projectiles
+	float average_fps = 0;
 	Scene();
 	Scene(std::mt19937* engine);
 	~Scene();
 	Scene& operator=(const Scene&) = delete;
 	Scene(const Scene&) = delete;
 
+	void setFixedWorld();
 	const int getEnemyNumber() { return enemy_count; }
 	const int getProjectileNumber() { return projectile_count; }
+	const int getTotalTimeElapsed() { return total_time_elapsed; }
+	const int getTotalKills() { return total_kills; }
 	void checkCollision(Collision* collision, int enemy_number, float delta);
 	void checkProjectileCollision(Collision* collision, int enemy_number, float delta);
 	void drawImage(GamesEngineeringBase::Window* canvas);

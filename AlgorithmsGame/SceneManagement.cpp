@@ -31,6 +31,14 @@ Scene::~Scene() {
 	delete[] projectiles;
 }
 
+void Scene::setFixedWorld() {
+	background.setFixedWorld();
+	player.setFixedWorld();
+	int destination[2];
+	player.getCoordinates(destination);
+	camera = Camera(destination);
+}
+
 void Scene::checkCollision(Collision* collision, int enemy_number, float delta) {
 	return enemies[enemy_number].checkCollision(collision, delta);
 }
@@ -98,7 +106,7 @@ void Scene::drawImage_Projectiles(GamesEngineeringBase::Window* canvas, int worl
 }
 
 void Scene::drawImage(GamesEngineeringBase::Window* canvas) {
-	// Background -> Player -> Enemies -> Player Projectiles -> Enemy Projectiles -> Effects (if any)
+	// Background -> Player -> Enemies -> Projectiles -> Effects (if any)
 	int world_pixel[2];
 	world_pixel[0] = camera.getPosition(0) - width / 2;
 	world_pixel[1] = camera.getPosition(1) - height / 2;
@@ -244,6 +252,7 @@ void Scene::cleanUpEnemies() {
 		while (enemies[i].getHealth() <= 0 && i < enemy_count) {
 			enemies[i] = enemies[enemy_count - 1];
 			enemy_count--;
+			total_kills++;
 		}
 	}
 }

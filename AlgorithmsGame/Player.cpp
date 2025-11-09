@@ -22,6 +22,12 @@ Player::Player(Scene* sc, int set[2]) {
 	scene = sc;
 }
 
+void Player::setFixedWorld() {
+	fixed_world = true;
+	coordinates[0] = GameParameters::Background::fixed_world_spawn_point[0];
+	coordinates[1] = GameParameters::Background::fixed_world_spawn_point[1];
+}
+
 void Player::takeDamage(Attack* incoming_attack) {
 	if (invulnerability_timer > 0.0f) { return; }
 	invulnerability_timer = GameParameters::Player::global_invulnerability;
@@ -55,6 +61,7 @@ void Player::movePlayer(updateData update_data) {
 	collision.current_velocity[1] = 0.0f;
 	int directions = 0;
 	float delta = update_data.delta;
+	// Count directions to get fair speed (diagonal or ortogonal)
 	if (update_data.is_key_pressed[0x25]) {
 		directions++;
 	}
@@ -78,6 +85,7 @@ void Player::movePlayer(updateData update_data) {
 		future_attack3_projectile_velocity[0] = 0.0f;
 		future_attack3_projectile_velocity[1] = 0.0f;
 	}
+	// Process Movements
 	if (update_data.is_key_pressed[0x25]) {
 		coordinates[0] -= fair_speed * delta;
 		collision.current_velocity[0] = -fair_speed;
@@ -98,6 +106,18 @@ void Player::movePlayer(updateData update_data) {
 		collision.current_velocity[1] = fair_speed;
 		future_attack3_projectile_velocity[1] += fair_speed * GameParameters::Projectiles::friendly_speed / speed;
 	}
+	// If fixed world, bound player
+	if (fixed_world) {
+		for (int i = 0; i < 2; i++) {
+			if (coordinates[i] < GameParameters::Background::fixed_world_player_constraints[0][i]) {
+				coordinates[i] = GameParameters::Background::fixed_world_player_constraints[0][i];
+			}
+			else if (coordinates[i] > GameParameters::Background::fixed_world_player_constraints[1][i]) {
+				coordinates[i] = GameParameters::Background::fixed_world_player_constraints[1][i];
+			}
+		}
+	}
+	// Update collision
 	collision.current_position[0] = coordinates[0];
 	collision.current_position[1] = coordinates[1];
 }
@@ -271,5 +291,11 @@ void Player::performAttack3() {
 void Player::checkGameOver() {
 	if (health <= 0) {
 		coordinates[0] += 100000;
+		if (!is_dead) {
+			std::cout << "Captain? Captain?! CAPTAIN!!!" << std::endl;
+			std::cout << "(You survived for " << scene->getTotalTimeElapsed() << " seconds and killed " << scene->getTotalKills() << " enemies.)" << std::endl;
+			std::cout << "(The game ran at an average of " << scene->average_fps << " fps.)" << std::endl;
+			is_dead = true;
+		}
 	}
 }

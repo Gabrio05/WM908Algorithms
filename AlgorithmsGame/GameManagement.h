@@ -14,14 +14,17 @@ class GameManager {
 	Scene scene;
 	GamesEngineeringBase::Timer timer;
 	std::mt19937* random_engine;
-#ifdef _DEBUG
+	bool is_paused = false;
+	bool pause_button_pressed = false;
 	float frame_time = 0.0f;
 	int frames_per_second = 0;
-#endif
+	int total_frames = 0;
+	int seconds_elapsed = 0;
 public:
 	GameManager(GamesEngineeringBase::Window& c, std::mt19937* engine);
 	void runUpdateLoop();  // Run update in (appropriate) scene
 	void loadAll();
+	void startRoutine();
 };
 
 #endif
