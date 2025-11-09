@@ -21,6 +21,10 @@ Projectile::Projectile(Sprite* spr, bool is_friendly, float pos[2], int attack_d
 	velocity[1] = vel[1];
 }
 
+void Projectile::setLifespan(float time) {
+	lifespan = time;
+}
+
 void Projectile::checkCollision(Collision* coll, float delta) {
 	return collision.checkCollision(coll, delta);
 }

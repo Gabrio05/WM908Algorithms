@@ -16,7 +16,7 @@ class GameManager {
 	std::mt19937* random_engine;
 	bool is_paused = false;
 	bool pause_button_pressed = false;
-	float frame_time = 0.0f;
+	float frame_time = 1.0f;
 	int frames_per_second = 0;
 	int total_frames = 0;
 	int seconds_elapsed = 0;

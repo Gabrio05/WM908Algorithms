@@ -31,6 +31,223 @@ Scene::~Scene() {
 	delete[] projectiles;
 }
 
+int readIntNumber(std::ifstream* file) {
+	int number = 0;
+	bool negative = false;
+	while (!file->eof()) {
+		char c = file->get();
+		if (c == ',') {
+			break;
+		}
+		else if (c == '-') {
+			negative = true;
+		}
+		else {
+			number *= 10;
+			number += c - '0';
+		}
+	}
+	if (negative) {
+		return -number;
+	}
+	return number;
+}
+
+float readNumber(std::ifstream* file) {
+	int whole_part = 0;
+	bool negative = false;
+	int decimal_part = 0;
+	bool on_decimals = false;
+	int decimal_digits = 0;
+	bool exponential = false;
+	bool negative_exponent = false;
+	int exponent = 0;
+	while (!file->eof()) {
+		char c = file->get();
+		if (c == ',') {
+			break;
+		}
+		else if (c == '.') {
+			on_decimals = true;
+		}
+		else if (c == 'e') {
+			exponential = true;
+		}
+		else if (c == '-') {
+			if (exponential) {
+				negative_exponent = true;
+			}
+			else {
+				negative = true;
+			}
+		}
+		else {
+			if (!on_decimals) {
+				whole_part *= 10;
+				whole_part += c - '0';
+			}
+			else if (!exponential) {
+				decimal_part *= 10;
+				decimal_part += c - '0';
+				decimal_digits++;
+			}
+			else {
+				exponent *= 10;
+				exponent += c - '0';
+			}
+		}
+	}
+	float number = whole_part + decimal_part / pow(10, decimal_digits);
+	if (exponential) {
+		if (negative_exponent) {
+			exponent = -exponent;
+		}
+		number = number * pow(10, exponent);
+	}
+	if (negative) {
+		return -number;
+	}
+	return number;
+}
+
+void Scene::saveGame() {
+	// Saves the current stage of the game. All numbers are separated by ',' even at the end of a line.
+	// Line breaks have been inserted every so often for txt readability, do not forget to file.get() for each!
+	std::ofstream file;
+	file.open(GameParameters::save_filename);
+	// Camera
+	file << camera.getPosition(0) << ',' << camera.getPosition(1) << ',' << '\n';
+	// Scene Variables
+	file << total_time_elapsed << ',';
+	file << enemy_count << ',';
+	file << total_kills << ',';
+	file << projectile_count << ',' << '\n';
+	for (int i = 0; i < GameParameters::Enemies::unique_enemies; i++) {
+		file << enemy_spawn_timer[i] << ',';
+	}
+	file << '\n';
+	file << background.isWorldFixed() << ',' << '\n';
+	// Player
+	player.saveToSave(&file);
+	// Enemies
+	for (int i = 0; i < enemy_count; i++) {
+		file << enemies[i].getPosition(0) << ',';
+		file << enemies[i].getPosition(1) << ',';
+		file << enemies[i].getHealth() << ',';
+		file << enemies[i].getSpeed() << ',';
+		file << enemies[i].is_throwing_projectiles << ',';
+		file << enemies[i].projectile_delay << ',';
+		file << enemies[i].attack.damage << ',';
+		file << enemies[i].enemy_type << ',';
+		file << '\n';
+	}
+	// Projectiles
+	for (int i = 0; i < projectile_count; i++) {
+		file << projectiles[i].getPosition(0) << ',';
+		file << projectiles[i].getPosition(1) << ',';
+		file << projectiles[i].getVelocityMove() << ',';
+		file << projectiles[i].getVelocity(0) << ',';
+		file << projectiles[i].getVelocity(1) << ',';
+		file << projectiles[i].getLifespan() << ',';
+		file << projectiles[i].friendliness() << ',';
+		file << projectiles[i].attack.damage << ',';
+		file << '\n';
+	}
+	file.close();
+}
+
+void Scene::loadGame() {
+	std::ifstream file;
+	int digits[2];
+	float numbers[2];
+	file.open(GameParameters::save_filename);
+	// Camera
+	digits[0] = readIntNumber(&file);
+	digits[1] = readIntNumber(&file);
+	camera = Camera(digits);
+	file.get();
+	// Scene Variables
+	numbers[0] = readNumber(&file);
+	total_time_elapsed = numbers[0];
+	digits[0] = readIntNumber(&file);
+	enemy_count = digits[0];
+	digits[0] = readIntNumber(&file);
+	total_kills = digits[0];
+	digits[0] = readIntNumber(&file);
+	projectile_count = digits[0];
+	file.get();
+	for (int i = 0; i < GameParameters::Enemies::unique_enemies; i++) {
+		numbers[0] = readNumber(&file);
+		enemy_spawn_timer[i] = numbers[0];
+	}
+	file.get();
+	digits[0] = readIntNumber(&file);
+	if (digits[0] == 1) {
+		setFixedWorld();
+	}
+	file.get();
+	// Player
+	float coord[2];
+	coord[0] = readNumber(&file);
+	coord[1] = readNumber(&file);
+	int h = readIntNumber(&file);
+	int sh = readIntNumber(&file);
+	float inv = readNumber(&file);
+	float shield_t = readNumber(&file);
+	float at1 = readNumber(&file);
+	float at2 = readNumber(&file);
+	float at3 = readNumber(&file);
+	float at3_vel[2];
+	at3_vel[0] = readNumber(&file);
+	at3_vel[1] = readNumber(&file);
+	player.loadFromSave(coord, h, sh, inv, shield_t, at1, at2, at3, at3_vel);
+	file.get();
+	// Enemies
+	for (int i = 0; i < enemy_count; i++) {
+		numbers[0] = readNumber(&file);
+		numbers[1] = readNumber(&file);
+		digits[0] = readIntNumber(&file);
+		digits[1] = readIntNumber(&file);
+		int proj = readIntNumber(&file);
+		float proj_del = readNumber(&file);
+		int atk = readIntNumber(&file);
+		int type = readIntNumber(&file);
+		enemies[i] = Enemy(&(enemy_sprites[type]), numbers, type);
+		enemies[i].setStats(digits[0], atk, digits[1]);
+		enemies[i].is_throwing_projectiles = (bool)proj;
+		enemies[i].projectile_delay = proj_del;
+		file.get();
+	}
+	// Projectiles
+	for (int i = 0; i < projectile_count; i++) {
+		numbers[0] = readNumber(&file);
+		numbers[1] = readNumber(&file);
+		int vel_mov = readIntNumber(&file);
+		float vel[2];
+		vel[0] = readNumber(&file);
+		vel[1] = readNumber(&file);
+		float life = readIntNumber(&file);
+		int friendly = readIntNumber(&file);
+		digits[1] = readIntNumber(&file);
+		Sprite* spr;
+		if (friendly) {
+			spr = &(projectile_sprites[0]);
+		}
+		else {
+			spr = &(projectile_sprites[GameParameters::Projectiles::unique_friendly_sprites]);
+		}
+		if (vel_mov) {
+			projectiles[i] = Projectile(spr, friendly, numbers, digits[1], vel);
+		}
+		else {
+			projectiles[i] = Projectile(spr, friendly, numbers, digits[1]);
+		}
+		projectiles[i].setLifespan(life);
+		file.get();
+	}
+	file.close();
+}
+
 void Scene::setFixedWorld() {
 	background.setFixedWorld();
 	player.setFixedWorld();
@@ -243,7 +460,10 @@ void Scene::spawnEnemy(int enemy_number) {
 #ifdef _DEBUG
 	std::print("spawn location: {0}, {1}\n", spawn_position[0] - camera.getPosition(0), spawn_position[1] - camera.getPosition(1));
 #endif
-	enemies[enemy_count] = Enemy(&(enemy_sprites[enemy_number]), spawn_position, enemy_number);
+	float spawn_pos[2];
+	spawn_pos[0] = (float)spawn_position[0];
+	spawn_pos[1] = (float)spawn_position[1];
+	enemies[enemy_count] = Enemy(&(enemy_sprites[enemy_number]), spawn_pos, enemy_number);
 	enemy_count++;
 }
 

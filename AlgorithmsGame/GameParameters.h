@@ -8,6 +8,8 @@ namespace GameParameters {
 	constexpr int window_width = 1024;
 	constexpr int window_height = 768;
 
+	constexpr char save_filename[] = "save.txt";
+
 	namespace Camera {
 		constexpr float time_to_destination = 0.3f;  // secs
 	}

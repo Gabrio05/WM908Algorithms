@@ -14,7 +14,7 @@ void GameManager::runUpdateLoop() {
 			}
 			else {
 				is_paused = true;
-				// TODO Saving Routine to save to file
+				scene.saveGame();
 			}
 			pause_button_pressed = true;
 		}
@@ -68,10 +68,11 @@ void GameManager::loadAll() {
 void GameManager::startRoutine() {
 	std::cout << "Captain! Enemies have been spotted! They'll start overwhelming us around 30 seconds after we start engaging." << std::endl;
 	std::cout << "Use the arrow keys to move the plane away from enemy planes and use Z and X to trigger our manual attacks." << std::endl;
-	std::cout << "You can also use C to call a temporary ceasefire. How would you like to deal with the enemies, captain?" << std::endl;
-	std::cout << "'i' to engage in an infinite space" << std::endl;
-	std::cout << "'f' to engage locally in a fixed space (your first officer warns you this is much, much harder)" << std::endl;
-	// std::cout << "'s' to resume engaging from last saved battle" << std::endl;
+	std::cout << "You can also use C to call a temporary ceasefire. Doing so will save our position and the enemies' so we can go grab a coffee while we wait for the ceasefire to end." << std::endl;
+	std::cout << "How would you like to deal with the enemies, captain?" << std::endl;
+	std::cout << "['i' to engage in an infinite space]" << std::endl;
+	std::cout << "['f' to engage locally in a fixed space (your first officer warns you this is much, much harder)]" << std::endl;
+	std::cout << "['s' to resume engaging from last saved battle]" << std::endl;
 	char choice = '0';
 	while (choice != 'i' && choice != 'f' && choice != 's') {
 		std::cout << "What is your choice captain? ";
@@ -79,6 +80,13 @@ void GameManager::startRoutine() {
 	}
 	if (choice == 'f') {
 		scene.setFixedWorld();
+	}
+	else if (choice == 's') {
+		scene.loadGame();
+		is_paused = true;
+		canvas.clear();
+		scene.drawImage(&canvas);
+		canvas.present();
 	}
 	timer.dt();
 }

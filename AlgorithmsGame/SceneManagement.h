@@ -49,6 +49,8 @@ public:
 	Scene& operator=(const Scene&) = delete;
 	Scene(const Scene&) = delete;
 
+	void saveGame();
+	void loadGame();
 	void setFixedWorld();
 	const int getEnemyNumber() { return enemy_count; }
 	const int getProjectileNumber() { return projectile_count; }

@@ -22,6 +22,35 @@ Player::Player(Scene* sc, int set[2]) {
 	scene = sc;
 }
 
+void Player::saveToSave(std::ofstream* file) {
+	*file << coordinates[0] << ',';
+	*file << coordinates[1] << ',';
+	*file << health << ',';
+	*file << shield << ',';
+	*file << invulnerability_timer << ',';
+	*file << shield_timer << ',';
+	*file << attack1_cooldown << ',';
+	*file << attack2_cooldown << ',';
+	*file << attack3_cooldown << ',';
+	*file << future_attack3_projectile_velocity[0] << ',';
+	*file << future_attack3_projectile_velocity[1] << ',';
+	*file << '\n';
+}
+
+void Player::loadFromSave(float coord[2], int h, int sh, float inv, float shield_t, float at1, float at2, float at3, float at3_vel[2]) {
+	coordinates[0] = coord[0];
+	coordinates[1] = coord[1];
+	health = h;
+	shield = sh;
+	invulnerability_timer = inv;
+	shield_timer = shield_t;
+	attack1_cooldown = at1;
+	attack2_cooldown = at2;
+	attack3_cooldown = at3;
+	future_attack3_projectile_velocity[0] = at3_vel[0];
+	future_attack3_projectile_velocity[1] = at3_vel[1];
+}
+
 void Player::setFixedWorld() {
 	fixed_world = true;
 	coordinates[0] = GameParameters::Background::fixed_world_spawn_point[0];

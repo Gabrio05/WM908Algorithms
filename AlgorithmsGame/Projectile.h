@@ -21,7 +21,11 @@ public:
 	Projectile();
 	Projectile(Sprite* spr, bool is_friendly, float pos[2], int attack_damage);
 	Projectile(Sprite* spr, bool is_friendly, float pos[2], int attack_damage, float vel[2]);
+	void setLifespan(float time);
 	const bool friendliness() { return is_player_friendly; }
+	const float getLifespan() { return lifespan; }
+	const bool getVelocityMove() { return velocity_move; }
+	float getVelocity(int i) { return velocity[i]; }
 	Collision* getCollisionPointer() { return &collision; }
 	int getPosition(int i) { return (int)(position[i] + 0.5f); }
 	void checkCollision(Collision* coll, float delta);

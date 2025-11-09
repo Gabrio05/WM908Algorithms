@@ -38,6 +38,8 @@ public:
 	Player();
 	Player(Scene* sc);
 	Player(Scene* sc, int pos[2]);
+	void saveToSave(std::ofstream* file);
+	void loadFromSave(float coord[2], int h, int sh, float inv, float shield_t, float at1, float at2, float at3, float at3_vel[2]);
 	void setFixedWorld();
 	void getCoordinates(int destination[2]);
 	void update(updateData update_data);

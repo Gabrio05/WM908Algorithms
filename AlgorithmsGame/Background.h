@@ -22,6 +22,7 @@ public:
 	void loadAllTiles();
 	void populateMap(int* indices);
 	void setFixedWorld();
+	const bool isWorldFixed() { return !infinite_world; }
 	void getPixelColour(int pixel[2], unsigned char colour[4]);
 };
 

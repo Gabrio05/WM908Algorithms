@@ -15,7 +15,7 @@ Enemy::Enemy(Sprite* spr) : collision{ GameParameters::Enemies::environment_coll
 	collision.current_position[1] = position[1];
 }
 
-Enemy::Enemy(Sprite* spr, int pos[2]) : collision{ GameParameters::Enemies::environment_collision[0] } {
+Enemy::Enemy(Sprite* spr, float pos[2]) : collision{ GameParameters::Enemies::environment_collision[0] } {
 	position[0] = (float)pos[0];
 	position[1] = (float)pos[1];
 	image = spr;
@@ -23,7 +23,7 @@ Enemy::Enemy(Sprite* spr, int pos[2]) : collision{ GameParameters::Enemies::envi
 	collision.current_position[1] = position[1];
 }
 
-Enemy::Enemy(Sprite* spr, int pos[2], int enemy_number) : collision{ GameParameters::Enemies::environment_collision[enemy_number] } {
+Enemy::Enemy(Sprite* spr, float pos[2], int enemy_number) : collision{ GameParameters::Enemies::environment_collision[enemy_number] } {
 	position[0] = (float)pos[0];
 	position[1] = (float)pos[1];
 	image = spr;
@@ -33,6 +33,7 @@ Enemy::Enemy(Sprite* spr, int pos[2], int enemy_number) : collision{ GameParamet
 			 GameParameters::Enemies::attack_damage_for_enemies[enemy_number],
 			 GameParameters::Enemies::speed_for_enemies[enemy_number]);
 	if (enemy_number == 2) { is_throwing_projectiles = true; }
+	enemy_type = enemy_number;
 }
 
 void Enemy::setStats(int h, int damage, float sp) {
